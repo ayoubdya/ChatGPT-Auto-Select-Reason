@@ -29,7 +29,7 @@
       retryDelay: 1000
     },
     maxRetries: 3,
-    debug: true
+    debug: false
   };
 
   const logger = {

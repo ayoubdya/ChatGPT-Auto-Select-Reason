@@ -4,6 +4,7 @@
 // @version      1.0.1
 // @description  Select Reason Option Automatically in ChatGPT
 // @author       ayoubdya
+// @license      MIT
 // @match        *://*.chatgpt.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=chatgpt.com
 // @grant        none

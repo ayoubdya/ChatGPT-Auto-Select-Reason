@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Auto‑Select Reason
 // @namespace    https://github.com/ayoubdya/ChatGPT-Auto-Select-Reason
-// @version      1.0.0
+// @version      1.0.1
 // @description  Select Reason Option Automatically in ChatGPT
 // @author       ayoubdya
 // @match        *://*.chatgpt.com/*
@@ -111,7 +111,7 @@
     }
   }
 
-  async function enableReason(retryCount = 0) {
+  async function enableReason({ retryCount = 0, initialCall = false } = {}) {
     try {
       logger.log(`Attempting to enable Reason (attempt ${retryCount + 1}/${CONFIG.maxRetries + 1})`);
 
@@ -123,7 +123,9 @@
       const toolsButton = await waitForElement(CONFIG.selectors.toolsButton);
 
       // Wait for API response from: chatgpt.com/backend-api/system_hints
-      await new Promise(resolve => setTimeout(resolve, CONFIG.timeouts.apiDelay));
+      if (initialCall) {
+        await new Promise(resolve => setTimeout(resolve, CONFIG.timeouts.apiDelay));
+      }
 
       if (!simulateClick(toolsButton)) {
         throw new Error('Failed to click tools button');
@@ -135,7 +137,7 @@
         throw new Error('Failed to click reason option');
       }
 
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // await new Promise(resolve => setTimeout(resolve, 200));
       if (isReasonSelected()) {
         logger.log('Successfully enabled Reason');
         return true;
@@ -149,7 +151,7 @@
       if (retryCount < CONFIG.maxRetries) {
         logger.log(`Retrying in ${CONFIG.timeouts.retryDelay}ms...`);
         await new Promise(resolve => setTimeout(resolve, CONFIG.timeouts.retryDelay));
-        return enableReason(retryCount + 1);
+        return enableReason({ retryCount: retryCount + 1 });
       } else {
         logger.error('Max retries exceeded, giving up');
         return false;
@@ -160,7 +162,7 @@
   function initialize() {
     logger.log('Initializing Auto-Select Reason script');
 
-    enableReason().catch(error => {
+    enableReason({ initialCall: true }).catch(error => {
       logger.error('Initial enableReason failed', error);
     });
 

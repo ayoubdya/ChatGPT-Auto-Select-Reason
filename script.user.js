@@ -175,7 +175,7 @@
             enableReason().catch(error => {
               logger.error('Dynamic enableReason failed', error);
             });
-            break;
+            return;
           }
         }
       }

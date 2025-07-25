@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Auto‑Select Reason
 // @namespace    https://github.com/ayoubdya/ChatGPT-Auto-Select-Reason
-// @version      1.0.1
+// @version      1.0.2
 // @description  Select Reason Option Automatically in ChatGPT
 // @author       ayoubdya
 // @license      MIT
@@ -21,8 +21,9 @@
     selectors: {
       toolsButton: "#system-hint-button",
       reasonOption: "div[role='menuitemradio']",
+      reasonOptionText: "Think longer",
       selectedOption: "button[data-is-selected='true']",
-      reasonText: "Reason"
+      selectedOptionText: "Reason"
     },
     timeouts: {
       waitForElement: 5000,
@@ -69,7 +70,12 @@
 
   function waitForElement(selector, timeout = CONFIG.timeouts.waitForElement) {
     return new Promise((resolve, reject) => {
-      const existingElement = document.querySelector(selector);
+      let existingElement;
+      if (selector === CONFIG.selectors.reasonOption) {
+        existingElement = getReasonElement();
+      } else {
+        existingElement = document.querySelector(selector);
+      }
       if (existingElement) {
         logger.log(`Element found immediately: ${selector}`);
         return resolve(existingElement);
@@ -77,7 +83,12 @@
 
       let timeoutId;
       const observer = new MutationObserver(() => {
-        const element = document.querySelector(selector);
+        let element;
+        if (selector === CONFIG.selectors.reasonOption) {
+          element = getReasonElement();
+        } else {
+          element = document.querySelector(selector);
+        }
         if (element) {
           clearTimeout(timeoutId);
           observer.disconnect();
@@ -100,10 +111,16 @@
     });
   }
 
+  function getReasonElement() {
+    const els = document.querySelectorAll(CONFIG.selectors.reasonOption);
+    const el = Array.from(els).find(el => el.textContent.trim().toLowerCase() === CONFIG.selectors.reasonOptionText.toLowerCase());
+    return el;
+  }
+
   function isReasonSelected() {
     try {
       const selectedElement = document.querySelector(CONFIG.selectors.selectedOption);
-      const isSelected = selectedElement?.textContent?.trim() === CONFIG.selectors.reasonText;
+      const isSelected = selectedElement?.textContent?.trim() === CONFIG.selectors.selectedOptionText;
       logger.log(`Reason selected status: ${isSelected}`);
       return isSelected;
     } catch (error) {

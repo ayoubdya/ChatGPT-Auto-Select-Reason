@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Auto‑Select Reason
 // @namespace    https://github.com/ayoubdya/ChatGPT-Auto-Select-Reason
-// @version      1.0.2
+// @version      1.0.3
 // @description  Select Reason Option Automatically in ChatGPT
 // @author       ayoubdya
 // @license      MIT
@@ -22,6 +22,7 @@
       toolsButton: "#system-hint-button",
       reasonOption: "div[role='menuitemradio']",
       reasonOptionText: "Think longer",
+      reasonOptionTextDisabled: "more available on",
       selectedOption: "button[data-is-selected='true']",
       selectedOptionText: "Reason"
     },
@@ -35,9 +36,9 @@
   };
 
   const logger = {
-    log: (msg) => CONFIG.debug && console.log(`[Auto-Select Reason] ${msg}`),
-    error: (msg, err) => console.error(`[Auto-Select Reason] ${msg}`, err),
-    warn: (msg) => console.warn(`[Auto-Select Reason] ${msg}`)
+    log: (msg) => CONFIG.debug && console.log(`[LOG] ${msg}`),
+    error: (msg, err) => console.error(`[ERROR] ${msg}`, err),
+    warn: (msg) => console.warn(`[WARN] ${msg}`)
   };
 
   function simulateClick(element) {
@@ -72,7 +73,14 @@
     return new Promise((resolve, reject) => {
       let existingElement;
       if (selector === CONFIG.selectors.reasonOption) {
-        existingElement = getReasonElement();
+        try {
+          existingElement = getReasonElement()
+        } catch (err) {
+          if (err instanceof DisabledReasonError) {
+            reject(err);
+          }
+        }
+
       } else {
         existingElement = document.querySelector(selector);
       }
@@ -85,7 +93,15 @@
       const observer = new MutationObserver(() => {
         let element;
         if (selector === CONFIG.selectors.reasonOption) {
-          element = getReasonElement();
+          try {
+            element = getReasonElement();
+          } catch (err) {
+            if (err instanceof DisabledReasonError) {
+              clearTimeout(timeoutId);
+              observer.disconnect();
+              reject(err);
+            }
+          }
         } else {
           element = document.querySelector(selector);
         }
@@ -111,9 +127,23 @@
     });
   }
 
+  class DisabledReasonError extends Error {
+    constructor(message) {
+      super(message);
+      this.name = 'DisabledReasonError';
+    }
+  }
+
+
   function getReasonElement() {
     const els = document.querySelectorAll(CONFIG.selectors.reasonOption);
-    const el = Array.from(els).find(el => el.textContent.trim().toLowerCase() === CONFIG.selectors.reasonOptionText.toLowerCase());
+    const validTexts = [CONFIG.selectors.reasonOptionText, CONFIG.selectors.reasonOptionTextDisabled].map(text => text.toLowerCase());
+    const el = Array.from(els).find(el => validTexts.some(text => {
+      return el.textContent.trim().toLowerCase().includes(text);
+    }));
+    if (el?.textContent?.trim().toLowerCase().includes(CONFIG.selectors.reasonOptionTextDisabled)) {
+      throw new DisabledReasonError('Reason option is disabled, cannot select');
+    }
     return el;
   }
 
@@ -164,6 +194,11 @@
       }
 
     } catch (error) {
+      if (error instanceof DisabledReasonError) {
+        logger.warn(error.message);
+        return false;
+      }
+
       logger.error(`Failed to enable Reason (attempt ${retryCount + 1})`, error);
 
       if (retryCount < CONFIG.maxRetries) {

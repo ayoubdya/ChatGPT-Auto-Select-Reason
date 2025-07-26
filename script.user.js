@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Auto‑Select Reason
 // @namespace    https://github.com/ayoubdya/ChatGPT-Auto-Select-Reason
-// @version      1.0.3
+// @version      1.0.4
 // @description  Select Reason Option Automatically in ChatGPT
 // @author       ayoubdya
 // @license      MIT
@@ -196,6 +196,8 @@
     } catch (error) {
       if (error instanceof DisabledReasonError) {
         logger.warn(error.message);
+        const toolsButton = document.querySelector(CONFIG.selectors.toolsButton);
+        simulateClick(toolsButton);
         return false;
       }
 

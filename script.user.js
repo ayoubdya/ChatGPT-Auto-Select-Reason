@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Auto‑Select Reason
 // @namespace    https://github.com/ayoubdya/ChatGPT-Auto-Select-Reason
-// @version      1.0.4
+// @version      1.0.5
 // @description  Select Reason Option Automatically in ChatGPT
 // @author       ayoubdya
 // @license      MIT
@@ -36,9 +36,9 @@
   };
 
   const logger = {
-    log: (msg) => CONFIG.debug && console.log(`[LOG] ${msg}`),
-    error: (msg, err) => console.error(`[ERROR] ${msg}`, err),
-    warn: (msg) => console.warn(`[WARN] ${msg}`)
+    log: (msg) => CONFIG.debug && console.log(`[Auto-Select Reason] ${msg}`),
+    error: (msg, err) => console.error(`[Auto-Select Reason] ${msg}`, err),
+    warn: (msg) => console.warn(`[Auto-Select Reason] ${msg}`)
   };
 
   function simulateClick(element) {

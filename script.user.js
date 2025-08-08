@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ChatGPT Auto‑Select Reason
 // @namespace    https://github.com/ayoubdya/ChatGPT-Auto-Select-Reason
-// @version      1.0.5
+// @version      1.0.6
 // @description  Select Reason Option Automatically in ChatGPT
 // @author       ayoubdya
 // @license      MIT
@@ -19,12 +19,12 @@
 
   const CONFIG = {
     selectors: {
-      toolsButton: "#system-hint-button",
+      toolsButton: "button[data-testid=composer-plus-btn]",
       reasonOption: "div[role='menuitemradio']",
       reasonOptionText: "Think longer",
       reasonOptionTextDisabled: "more available on",
       selectedOption: "button[data-is-selected='true']",
-      selectedOptionText: "Reason"
+      selectedOptionText: "Think"
     },
     timeouts: {
       waitForElement: 5000,
